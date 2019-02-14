@@ -1,19 +1,38 @@
 import { BaseComponent } from '../../common/components/base/base.component.js';
 
-export class OnePhoneViewComponent extends BaseComponent{
+export class OnePhoneViewComponent extends BaseComponent {
+
+  constructor({ element }) {
+    super({ element });
+
+    this.on('click', '.go-back', () => {
+      this.emit('back')
+    });
+    this.on('click', '.add-to-cart', () => {
+      this.emit('add', this._phone.id)
+    });
+    this.on('click', '.image-link', (event) => {
+      this._currentImage = event.delegateTarget.src;
+      this._render();
+    });
+  }
+
 
   show(phone) {
     this._phone = phone;
+    this._currentImage = `assets/${this._phone.images[0]}`;
     this._render();
     super.show();
   }
 
   _render() {
-    this._element.innerHTML = `
-       <img class="phone" src="assets/img/phones/motorola-xoom-with-wi-fi.0.jpg">
+    const { name, description, images } = this._phone;
 
-    <button>Back</button>
-    <button>Add to basket</button>
+    this._element.innerHTML = `
+       <img class="phone" src="${this._currentImage}">
+
+    <button class="go-back">Back</button>
+    <button class="add-to-cart">Add to basket</button>
 
 
     <h1>Motorola XOOM™ with Wi-Fi</h1>
@@ -21,24 +40,11 @@ export class OnePhoneViewComponent extends BaseComponent{
     <p>Motorola XOOM with Wi-Fi has a super-powerful dual-core processor and Android™ 3.0 (Honeycomb) — the Android platform designed specifically for tablets. With its 10.1-inch HD widescreen display, you’ll enjoy HD video in a thin, light, powerful and upgradeable tablet.</p>
 
     <ul class="phone-thumbs">
-      <li>
-        <img src="assets/img/phones/motorola-xoom-with-wi-fi.0.jpg">
-      </li>
-      <li>
-        <img src="assets/img/phones/motorola-xoom-with-wi-fi.1.jpg">
-      </li>
-      <li>
-        <img src="assets/img/phones/motorola-xoom-with-wi-fi.2.jpg">
-      </li>
-      <li>
-        <img src="assets/img/phones/motorola-xoom-with-wi-fi.3.jpg">
-      </li>
-      <li>
-        <img src="assets/img/phones/motorola-xoom-with-wi-fi.4.jpg">
-      </li>
-      <li>
-        <img src="img/phones/motorola-xoom-with-wi-fi.5.jpg">
-      </li>
+              ${images.reduce((html, imageSrc) => {
+      return ` ${html}<li>
+        <img class="image-link" src='assets/${imageSrc}'">
+      </li>`;
+    }, '')}
     </ul>
 
     <ul class="specs">
