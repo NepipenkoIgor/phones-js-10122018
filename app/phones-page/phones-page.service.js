@@ -223,13 +223,72 @@ const phone = {
   }
 }
 
+class CustomPromise {
+  constructor(controlFn) {
+    this._status = 'pending';
+    this._successCbs = [];
+
+    controlFn(this._resolve.bind(this))
+  }
+
+  then(successCb) {
+    if (this._status === 'fulfilled') {
+      successCb(this._result);
+      return;
+    }
+    this._successCbs.push(successCb)
+
+  }
+
+  _resolve(data) {
+    this._status = 'fulfilled';
+    this._result = data;
+    this._successCbs.forEach((successCb) => {
+      successCb(data)
+    })
+  }
+}
+
+
 export class PhonesPageService {
 
-  getAllPhones() {
-    return phones;
+  getAllPhones({ text, orderBy }) {
+    return new Promise((res) => {
+      console.log('START')
+      setTimeout(() => {
+        const searchedPhones = this._searchByText(phones, text);
+        const sortedPhones = this._sort(searchedPhones, orderBy);
+        res(sortedPhones);
+        console.log('END')
+      }, 5000)
+    })
+
+
   }
 
   getPhonesById(id) {
     return phone;
+  }
+
+  _searchByText(phones, searchText) {
+    if (!searchText) {
+      return phones;
+    }
+    return phones.filter(phone => {
+      return phone.name.toLowerCase()
+        .includes(searchText.toLowerCase());
+    });
+  }
+
+  _sort(phones, orderBy) {
+    if (!orderBy) {
+      return phones
+    }
+    return [...phones]
+      .sort((phone1, phone2) => {
+        return phone1[orderBy] > phone2[orderBy]
+          ? 1
+          : -1
+      });
   }
 }
