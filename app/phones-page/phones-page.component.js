@@ -35,10 +35,22 @@ export class PhonesPageComponent {
       // }
     });
     this._showFilteredPhones();
-    this._phoneCatalog.subscribe('phone-select', (phoneId) => {
-      const phoneDetails = this._phoneService.getPhonesById(phoneId);
-      this._phoneCatalog.hide();
-      this._phoneViewer.show(phoneDetails);
+    this._phoneCatalog.subscribe('phone-select', async (phoneId) => {
+      try {
+        const phone = await this._phoneService
+          .getPhonesById(phoneId)
+        this._phoneCatalog.hide();
+        this._phoneViewer.show(phone);
+      } catch (err) {
+        console.log(err);
+      }
+
+      // this._phoneService
+      //   .getPhonesById(phoneId)
+      //   .then((phone) => {
+      //     this._phoneCatalog.hide();
+      //     this._phoneViewer.show(phone);
+      //   });
     })
 
     this._phoneCatalog.subscribe('add', (phoneId) => {
@@ -83,20 +95,27 @@ export class PhonesPageComponent {
     });
   }
 
-  _showFilteredPhones() {
-    const filteredPhonesPromise = this._phoneService.getAllPhones(
-      this.state,
-      // (filteredPhones) => {
-      //   this._phoneCatalog.show(filteredPhones);
-      // }
-    );
-    filteredPhonesPromise
-      .then(filteredPhones => {
-        this._phoneCatalog.show(filteredPhones);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+  async _showFilteredPhones() {
+    try {
+      const filteredPhones = await this._phoneService.getAllPhones(this.state);
+      this._phoneCatalog.show(filteredPhones);
+    } catch (err) {
+      console.log(err)
+    }
+
+    // const filteredPhonesPromise = this._phoneService.getAllPhones(
+    //   this.state,
+    //   // (filteredPhones) => {
+    //   //   this._phoneCatalog.show(filteredPhones);
+    //   // }
+    // );
+    // filteredPhonesPromise
+    //   .then(filteredPhones => {
+    //     this._phoneCatalog.show(filteredPhones);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   })
 
     // const somePromise = new Promise((res, rej) => {
     //   setTimeout(() => {
